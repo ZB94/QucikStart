@@ -62,21 +62,27 @@ class MainWindow(QTabWidget):
     item_actions = None
     data_actions = None
     __data = None
-    __data_path = "./data.json"
-    __position_path = "./position.dat"
-    __icon_path = "./icon.ico"
-    __hotkey = "alt+d"
-    __name = "快速启动"
+    __data_path = None
+    __position_path = None
+    __icon_path = None
+    __hotkey = None
+    __name = None
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.loadConfig()
         self.loadData()
         self.initUi()
         keyboard.add_hotkey(self.__hotkey, lambda: self.showNormal() if self.isHidden() else self.hide())
         self.dragEnterEvent = self.dragMoveEvent = lambda e: e.accept() if e.mimeData().hasUrls() else e.ignore()
 
     def initUi(self):
-        self.icon = QIcon(self.__icon_path)
+        try:
+            if not self.__icon_path:
+                raise Exception()
+            self.icon = QIcon(self.__icon_path)
+        except:
+            self.icon = self.icon_provider.icon(QFileInfo(sys.argv[0]))
 
         self.setWindowTitle(self.__name)
         self.setWindowIcon(self.icon)
@@ -297,6 +303,23 @@ class MainWindow(QTabWidget):
                 json.dump(data, fp)
         except Exception as e:
             pass
+
+    def loadConfig(self):
+        section = "QuickStart"
+        try:
+            parse = ConfigParser()
+            parse.load("config.ini")
+            self.__name = parse.get(section, "name")
+            self.__data_path = parse.get(section, "data_path")
+            self.__position_path = parse.get(section, "position_path")
+            self.__icon_path = parse.get(section, "icon_path")
+            self.__hotkey = parse.get(section, "hotkey")
+        except:
+            self.__name = "快速启动"
+            self.__data_path = "./data.json"
+            self.__position_path = "./position.dat"
+            self.__icon_path = None
+            self.__hotkey = "alt+q"
 
 
 app = QApplication(sys.argv)
