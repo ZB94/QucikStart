@@ -293,7 +293,7 @@ class MainWindow(QTabWidget):
             with open(self.__data_path, encoding="utf-8") as fp:
                 data = json.load(fp)
                 self.__data = [Data.fromDict(i) for i in data]
-        except:
+        except Exception as e:
             self.__data = [Data("默认")]
 
     def saveData(self):
@@ -308,13 +308,13 @@ class MainWindow(QTabWidget):
         section = "QuickStart"
         try:
             parse = ConfigParser()
-            parse.load("config.ini")
+            parse.read("config.ini", encoding="utf-8")
             self.__name = parse.get(section, "name")
             self.__data_path = parse.get(section, "data_path")
             self.__position_path = parse.get(section, "position_path")
             self.__icon_path = parse.get(section, "icon_path")
             self.__hotkey = parse.get(section, "hotkey")
-        except:
+        except Exception as e:
             self.__name = "快速启动"
             self.__data_path = "./data.json"
             self.__position_path = "./position.dat"
