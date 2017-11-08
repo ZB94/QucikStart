@@ -93,6 +93,9 @@ class MainWindow(QTabWidget):
         self.item_actions = []
         self.item_actions.append(QAction("修改...", self, triggered=self.updateItem))
         self.item_actions.append(QAction("设置图标...", self, triggered=self.updateItemIcon))
+        self.item_actions.append(QAction("打开所在文件夹...", self, triggered=self.openItemPath))
+        self.item_actions.append(QAction(self))
+        self.item_actions[-1].setSeparator(True)
         self.item_actions.append(QAction("删除", self, triggered=self.deleteItem))
 
         # tab 右键菜单
@@ -264,10 +267,14 @@ class MainWindow(QTabWidget):
             self.showItem(widget, item)
             self.saveData()
 
-    def updateItem(self):
+    def __getItemData(self):
         widget = self.currentWidget()
         item = widget.currentItem()
         _item = item.data(Qt.UserRole)
+        return widget, item, _item
+
+    def updateItem(self):
+        widget, item, _item = self.__getItemData()
 
         name, ret = QInputDialog.getText(self, "请输入新名称", "新名称：", text=_item.name)
         if ret:
@@ -276,9 +283,7 @@ class MainWindow(QTabWidget):
             self.saveData()
 
     def updateItemIcon(self):
-        widget = self.currentWidget()
-        item = widget.currentItem()
-        _item = item.data(Qt.UserRole)
+        widget, item, _item = self.__getItemData()
 
         icon = QFileDialog.getOpenFileName(self, "选择图标", path.split(_item.path)[0], "图标文件(*.ico)")[0]
 
@@ -288,12 +293,15 @@ class MainWindow(QTabWidget):
             item.setIcon(QIcon(icon))
             self.saveData()
 
-    def deleteItem(self):
-        widget = self.currentWidget()
-        idx = widget.currentIndex().row()
-        item = widget.currentItem()
+    def openItemPath(self):
+        widget, item, _item = self.__getItemData()
+        if path.exists(_item.path):
+            os.startfile(path.split(_item.path)[0])
 
-        _item = item.data(Qt.UserRole)
+    def deleteItem(self):
+        widget, item, _item = self.__getItemData()
+        idx = widget.currentIndex().row()
+
         data = widget.item(0).data(Qt.UserRole)
 
         del data.items[data.items.index(_item)]
