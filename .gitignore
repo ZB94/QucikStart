@@ -3,3 +3,7 @@ data.json
 position.dat
 icon.ico
 .vscode
+build
+dist
+*.spec
+__pycache__

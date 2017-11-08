@@ -92,6 +92,7 @@ class MainWindow(QTabWidget):
         # 选中项右键菜单
         self.item_actions = []
         self.item_actions.append(QAction("修改...", self, triggered=self.updateItem))
+        self.item_actions.append(QAction("设置图标...", self, triggered=self.updateItemIcon))
         self.item_actions.append(QAction("删除", self, triggered=self.deleteItem))
 
         # tab 右键菜单
@@ -272,6 +273,19 @@ class MainWindow(QTabWidget):
         if ret:
             _item.name = name
             item.setData(Qt.DisplayRole, name)
+            self.saveData()
+
+    def updateItemIcon(self):
+        widget = self.currentWidget()
+        item = widget.currentItem()
+        _item = item.data(Qt.UserRole)
+
+        icon = QFileDialog.getOpenFileName(self, "选择图标", path.split(_item.path)[0], "图标文件(*.ico)")[0]
+
+        if icon:
+            icon = QFileInfo(icon).canonicalFilePath()
+            _item.icon = icon
+            item.setIcon(QIcon(icon))
             self.saveData()
 
     def deleteItem(self):
