@@ -168,6 +168,13 @@ class MainWindow(QTabWidget):
         if event.type() == QEvent.WindowStateChange and self.isMinimized():
             self.setHidden(True)
 
+    def __start(self, p):
+        if path.exists(p):
+            url = QUrl.fromLocalFile(p)
+        else:
+            url = QUrl(p)
+        QDesktopServices.openUrl(url)
+
     def showTab(self, data: Data):
         widget = QListWidget(self)
         # widget.setViewMode(QListWidget.IconMode)
@@ -181,11 +188,7 @@ class MainWindow(QTabWidget):
         def double_event(idx):
             idx = idx.row()
             item = widget.item(idx).data(Qt.UserRole)
-            if path.exists(item.path):
-                url = QUrl.fromLocalFile(item.path)
-            else:
-                url = QUrl(item.path)
-            QDesktopServices.openUrl(url)
+            self.__start(item.path)
 
         def menu_event(pos):
             if widget.itemAt(pos):
@@ -300,7 +303,7 @@ class MainWindow(QTabWidget):
     def openItemPath(self):
         widget, item, _item = self.__getItemData()
         if path.exists(_item.path):
-            QDesktopServices.openUrl(QUrl(path.split(_item.path)[0]))
+            self.__start(path.split(_item.path)[0])
 
     def deleteItem(self):
         widget, item, _item = self.__getItemData()
