@@ -74,7 +74,6 @@ class MainWindow(QTabWidget):
         self.loadData()
         self.initUi()
         keyboard.add_hotkey(self.__hotkey, lambda: self.showNormal() if self.isHidden() else self.hide())
-        self.dragEnterEvent = self.dragMoveEvent = lambda e: e.accept() if e.mimeData().hasUrls() else e.ignore()
 
     def initUi(self):
         try:
@@ -88,6 +87,7 @@ class MainWindow(QTabWidget):
         self.setWindowIcon(self.icon)
         self.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.setAcceptDrops(True)
+        self.dragEnterEvent = self.dragMoveEvent = lambda e: e.accept() if e.mimeData().hasUrls() else e.ignore()
 
         # 选中项右键菜单
         self.item_actions = []
@@ -181,7 +181,7 @@ class MainWindow(QTabWidget):
         def double_event(idx):
             idx = idx.row()
             item = widget.item(idx).data(Qt.UserRole)
-            os.startfile(item.path)
+            QDesktopServices.openUrl(QUrl(item.path))
 
         def menu_event(pos):
             if widget.itemAt(pos):
@@ -296,7 +296,7 @@ class MainWindow(QTabWidget):
     def openItemPath(self):
         widget, item, _item = self.__getItemData()
         if path.exists(_item.path):
-            os.startfile(path.split(_item.path)[0])
+            QDesktopServices.openUrl(QUrl(path.split(_item.path)[0]))
 
     def deleteItem(self):
         widget, item, _item = self.__getItemData()
