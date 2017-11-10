@@ -181,7 +181,11 @@ class MainWindow(QTabWidget):
         def double_event(idx):
             idx = idx.row()
             item = widget.item(idx).data(Qt.UserRole)
-            QDesktopServices.openUrl(QUrl(item.path))
+            if path.exists(item.path):
+                url = QUrl.fromLocalFile(item.path)
+            else:
+                url = QUrl(item.path)
+            QDesktopServices.openUrl(url)
 
         def menu_event(pos):
             if widget.itemAt(pos):
