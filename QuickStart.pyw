@@ -168,12 +168,13 @@ class MainWindow(QTabWidget):
         if event.type() == QEvent.WindowStateChange and self.isMinimized():
             self.setHidden(True)
 
-    def __start(self, p):
-        if path.exists(p):
-            url = QUrl.fromLocalFile(p)
+    def __start(self, p, select=False):
+        if select:
+            cmd = f'explorer /select,{path.abspath(p)}'
+            print(cmd)
+            os.popen(cmd)
         else:
-            url = QUrl(p)
-        QDesktopServices.openUrl(url)
+            os.startfile(p)
 
     def showTab(self, data: Data):
         widget = QListWidget(self)
@@ -258,7 +259,7 @@ class MainWindow(QTabWidget):
         p = QFileInfo(p)
         p = p.canonicalFilePath()
         icon = None
-        if p.endswith(".url"):
+        if p.lower().endswith(".url"):
             parse = ConfigParser()
             parse.read(p)
             p = parse.get("InternetShortcut", "URL")
@@ -303,7 +304,7 @@ class MainWindow(QTabWidget):
     def openItemPath(self):
         widget, item, _item = self.__getItemData()
         if path.exists(_item.path):
-            self.__start(path.split(_item.path)[0])
+            self.__start(_item.path, True)
 
     def deleteItem(self):
         widget, item, _item = self.__getItemData()
