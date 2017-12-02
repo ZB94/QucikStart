@@ -169,12 +169,11 @@ class MainWindow(QTabWidget):
             self.setHidden(True)
 
     def __start(self, p, select=False):
-        if select:
+        if select and path.exists(p):
             cmd = f'explorer /select,{path.abspath(p)}'
-            print(cmd)
-            os.popen(cmd)
         else:
-            os.startfile(p)
+            cmd = f'start "" "{p}"'
+        os.popen(cmd)
 
     def showTab(self, data: Data):
         widget = QListWidget(self)
