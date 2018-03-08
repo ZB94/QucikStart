@@ -311,7 +311,7 @@ class MainWindow(QTabWidget):
 
         data = widget.item(0).data(Qt.UserRole)
 
-        del data.items[data.items.index(_item)]
+        data.items.remove(_item)
         widget.takeItem(idx)
         widget.removeItemWidget(item)
 
