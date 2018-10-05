@@ -10,6 +10,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import keyboard
 
+ROOT_DIR = path.dirname(path.abspath(__file__))
+PYTHON = sys.executable
+os.chdir(ROOT_DIR)
 
 class Item():
     name = None
@@ -173,7 +176,8 @@ class MainWindow(QTabWidget):
             cmd = f'explorer /select,{path.abspath(p)}'
             os.popen(cmd)
         else:
-            os.startfile(p)
+            cmd = f'"{PYTHON}" startfile.py "{p}"'
+            os.popen(cmd)
 
     def showTab(self, data: Data):
         widget = QListWidget(self)
