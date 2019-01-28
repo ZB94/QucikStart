@@ -5,10 +5,10 @@ from os import path
 import json
 from configparser import ConfigParser
 
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-import keyboard
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+from system_hotkey import SystemHotkey
 
 ROOT_DIR = path.dirname(path.abspath(__file__))
 PYTHON = sys.executable
@@ -76,7 +76,13 @@ class MainWindow(QTabWidget):
         self.loadConfig()
         self.loadData()
         self.initUi()
-        keyboard.add_hotkey(self.__hotkey, lambda: self.showNormal() if self.isHidden() else self.hide())
+        self._hk = SystemHotkey()
+        self._hk.register(self.__hotkey, callback=self.__hotkeyEvent )
+
+
+
+    def __hotkeyEvent(self, *args, **kwargs):
+        self.showNormal() if self.isHidden() else self.hide()
 
     def initUi(self):
         try:
@@ -160,12 +166,14 @@ class MainWindow(QTabWidget):
     def closeEvent(self, event: QCloseEvent):
         self.tray.hide()
         self.saveData()
+        self._hk.unregister(self.__hotkey)
 
         try:
             with open(self.__position_path, "wb") as fp:
-                fp.write(self.saveGeometry())
+                fp.write(self.saveGeometry().data())
         except:
-            pass
+            import traceback
+            traceback.print_exc()
 
     def changeEvent(self, event: QEvent):
         if event.type() == QEvent.WindowStateChange and self.isMinimized():
@@ -353,6 +361,7 @@ class MainWindow(QTabWidget):
             self.__position_path = "./position.dat"
             self.__icon_path = None
             self.__hotkey = "alt+q"
+        self.__hotkey = [i.strip() for i in self.__hotkey.split("+") if not i.isspace()]
 
 
 app = QApplication(sys.argv)
